@@ -43,6 +43,7 @@ namespace Zoo
                 ProcessUserInput();
             }
         }
+
         private void ProcessUserInput() 
         {
             Console.Write("\nХотите дальше ходить по зоопарку или уйти? 1 - ДА 2 - НЕТ ");
