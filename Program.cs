@@ -14,6 +14,9 @@ namespace Zoo
 
     class Zoo
     {
+        private const int ComandNextWalkToZoo = 1;
+        private const int ComandExit = 2;
+
         private List<Aviary> _aviaries;
         private bool _isOpen = true;
 
@@ -35,52 +38,54 @@ namespace Zoo
                 Console.Clear();
 
                 Console.WriteLine("Вы в зоопарке. Какой вальер хотите посетить?\n");
-                for (int i = 0; i < _aviaries.Count; i++)
-                    Console.WriteLine("Вальер " + (i + 1));
+                ShowAviary();
+                ChoiceAviary();
+                ProcessUserInput();
+            }
+        }
+        private void ProcessUserInput() 
+        {
+            Console.Write("\nХотите дальше ходить по зоопарку или уйти? 1 - ДА 2 - НЕТ ");
 
-                Console.Write("\nВаш выбор:");
-
-                if (int.TryParse(Console.ReadLine(), out int choiceUser))
+            if (int.TryParse(Console.ReadLine(), out int inputUser))
+            {
+                if (inputUser == ComandNextWalkToZoo)
                 {
-                    if (choiceUser >= 1 && choiceUser <= _aviaries.Count)
-                    {
-                        _aviaries[choiceUser - 1].ShowInfo();
-                    }
-                    else
-                    {
-                        PrintIncorrectDataMessage();
-                        continue;
-                    }
+                    return;
+                }
+                else if (inputUser == ComandExit)
+                {
+                    _isOpen = false;
                 }
                 else
                 {
                     PrintIncorrectDataMessage();
-                    continue;
                 }
+            }
+            else
+            {
+                PrintIncorrectDataMessage();
+            }
+        }
 
-                Console.Write("\nХотите дальше ходить по зоопарку или уйти? 1 - ДА 2 - НЕТ ");
+        private void ChoiceAviary() 
+        {
+            Console.Write("\nВаш выбор:");
 
-                if (int.TryParse(Console.ReadLine(), out int inputUser))
+            if (int.TryParse(Console.ReadLine(), out int choiceUser))
+            {
+                if (choiceUser >= 1 && choiceUser <= _aviaries.Count)
                 {
-                    if (inputUser == 1)
-                    {
-                        continue;
-                    }
-                    else if (inputUser == 2)
-                    {
-                        _isOpen = false;
-                    }
-                    else
-                    {
-                        PrintIncorrectDataMessage();
-                        continue;
-                    }
+                    _aviaries[choiceUser - 1].ShowInfo();
                 }
                 else
                 {
                     PrintIncorrectDataMessage();
-                    continue;
                 }
+            }
+            else
+            {
+                PrintIncorrectDataMessage();
             }
         }
 
@@ -88,6 +93,12 @@ namespace Zoo
         {
             Console.WriteLine("Введены некорректные данные!");
             Console.ReadKey();
+        }
+
+        private void ShowAviary() 
+        {
+            for (int i = 0; i < _aviaries.Count; i++)
+                Console.WriteLine("Вальер " + (i + 1));
         }
     }
 
@@ -118,20 +129,16 @@ namespace Zoo
 
     class Animal : ICloneable
     {
-        private string _name;
-        private string _gender;
-        private string _sound;
-
         public Animal(string name, string gender, string sound)
         {
-            _name = name;
-            _gender = gender;
-            _sound = sound;
+            Name = name;
+            Gender = gender;
+            Sound = sound;
         }
 
-        public string Name => _name;
-        public string Gender => _gender;
-        public string Sound => _sound;
+        public string Name { get; private set; }
+        public string Gender { get; private set; }
+        public string Sound { get; private set; }
 
         public object Clone() => MemberwiseClone();
     }
