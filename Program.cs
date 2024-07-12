@@ -32,35 +32,6 @@ namespace Zoo
                 Console.WriteLine("Вы в зоопарке. Какой вальер хотите посетить?\n");
                 ShowAviary();
                 ChoiceAviary();
-                ProcessUserInput();
-            }
-        }
-
-        private void ProcessUserInput()
-        {
-            const int ComandNextWalkToZoo = 1;
-            const int ComandExit = 2;
-
-            Console.Write($"\nХотите дальше ходить по зоопарку или уйти? {ComandNextWalkToZoo} - ДА {ComandExit} - НЕТ ");
-
-            if (int.TryParse(Console.ReadLine(), out int inputUser))
-            {
-                if (inputUser == ComandNextWalkToZoo)
-                {
-                    return;
-                }
-                else if (inputUser == ComandExit)
-                {
-                    _isOpen = false;
-                }
-                else
-                {
-                    PrintIncorrectDataMessage();
-                }
-            }
-            else
-            {
-                PrintIncorrectDataMessage();
             }
         }
 
@@ -73,6 +44,11 @@ namespace Zoo
                 if (choiceUser >= 1 && choiceUser <= _aviaries.Count)
                 {
                     _aviaries[choiceUser - 1].ShowInfo();
+                    Console.ReadKey();
+                }
+                else if (choiceUser == _aviaries.Count + 1)
+                {
+                    _isOpen = false;
                 }
                 else
                 {
@@ -94,7 +70,10 @@ namespace Zoo
         private void ShowAviary()
         {
             for (int i = 0; i < _aviaries.Count; i++)
-                Console.WriteLine("Вальер " + (i + 1));
+                Console.WriteLine($"{i + 1}.Вальер " + (i + 1));
+
+            Console.Write($"{_aviaries.Count + 1}. Выход");
+
         }
     }
 
