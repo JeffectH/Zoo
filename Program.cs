@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Xml.Linq;
 
 namespace Zoo
 {
@@ -7,28 +8,19 @@ namespace Zoo
     {
         static void Main(string[] args)
         {
-            Zoo zoo = new Zoo();
+            var zoo = ZooFactory.CreateZoo();
             zoo.Work();
         }
     }
 
     class Zoo
     {
-        private const int ComandNextWalkToZoo = 1;
-        private const int ComandExit = 2;
-
         private List<Aviary> _aviaries;
         private bool _isOpen = true;
 
-        public Zoo()
+        public Zoo(List<Aviary> aviaries)
         {
-            _aviaries = new List<Aviary>()
-            {
-                new Aviary(5, new Animal("Тигр", "Мужской", "Ррррр")),
-                new Aviary(7, new Animal("Утка", "Мужской", "Кря-кря")),
-                new Aviary(7, new Animal("Овечка", "Женский", "Бе-е-е")),
-                new Aviary(3, new Animal("Лощадь", "Мужской", "Иго-го"))
-            };
+            _aviaries = aviaries;
         }
 
         public void Work()
@@ -44,9 +36,12 @@ namespace Zoo
             }
         }
 
-        private void ProcessUserInput() 
+        private void ProcessUserInput()
         {
-            Console.Write("\nХотите дальше ходить по зоопарку или уйти? 1 - ДА 2 - НЕТ ");
+            const int ComandNextWalkToZoo = 1;
+            const int ComandExit = 2;
+
+            Console.Write($"\nХотите дальше ходить по зоопарку или уйти? {ComandNextWalkToZoo} - ДА {ComandExit} - НЕТ ");
 
             if (int.TryParse(Console.ReadLine(), out int inputUser))
             {
@@ -69,7 +64,7 @@ namespace Zoo
             }
         }
 
-        private void ChoiceAviary() 
+        private void ChoiceAviary()
         {
             Console.Write("\nВаш выбор:");
 
@@ -96,7 +91,7 @@ namespace Zoo
             Console.ReadKey();
         }
 
-        private void ShowAviary() 
+        private void ShowAviary()
         {
             for (int i = 0; i < _aviaries.Count; i++)
                 Console.WriteLine("Вальер " + (i + 1));
@@ -105,30 +100,27 @@ namespace Zoo
 
     class Aviary
     {
-        private int _numberOfAnimals;
-        private Animal _animal;
+        private string _name;
         private List<Animal> _animals = new List<Animal>();
 
-        public Aviary(int numberOfAnimals, Animal animal)
+        public Aviary(string name, List<Animal> animals)
         {
-            _numberOfAnimals = numberOfAnimals;
-            _animal = animal;
-
-            PlaceAnimals();
+            _name = name;
+            _animals = animals;
         }
 
-        public void ShowInfo() =>
-            Console.WriteLine($"\nВ вальере {_numberOfAnimals} животных. {_animal.Name}. Все они имеют пол {_animal.Gender} и издают звук {_animal.Sound}");
-
-
-        private void PlaceAnimals()
+        public void ShowInfo()
         {
-            for (int i = 0; i < _numberOfAnimals; i++)
-                _animals.Add((Animal)_animal.Clone());
+            Console.WriteLine($"Вальер: {_name}");
+            Console.WriteLine($"Колличество животных: {_animals.Count}");
+            for (int i = 0; i < _animals.Count; i++)
+            {
+                Console.WriteLine(i + 1 + " " + _animals[i].Gender + "-" + _animals[i].Sound);
+            }
         }
     }
 
-    class Animal : ICloneable
+    class Animal
     {
         public Animal(string name, string gender, string sound)
         {
@@ -140,7 +132,69 @@ namespace Zoo
         public string Name { get; private set; }
         public string Gender { get; private set; }
         public string Sound { get; private set; }
-
-        public object Clone() => MemberwiseClone();
     }
+
+    class EnclosureFactory
+    {
+        public static Aviary CreateLionEnclosure()
+        {
+            var animals = new List<Animal>
+        {
+            new Animal("Лев", "Мужской", "Рев"),
+            new Animal("Лев", "Мужской", "Рев"),
+            new Animal("Львица", "Женский", "Рев"),
+            new Animal("Львица", "Женский", "Рев")
+        };
+            return new Aviary("Вольер со львами", animals);
+        }
+
+        public static Aviary CreateElephantEnclosure()
+        {
+            var animals = new List<Animal>
+        {
+            new Animal("Слон", "Мужской", "Труба"),
+        };
+            return new Aviary("Вольер со слонами", animals);
+        }
+
+        public static Aviary CreateMonkeyEnclosure()
+        {
+            var animals = new List<Animal>
+        {
+            new Animal("Обезьяна", "Мужской", "У-у"),
+            new Animal("Обезьяна", "Мужской", "У-у"),
+            new Animal("Обезьяна", "Женский", "А-а")
+        };
+            return new Aviary("Вольер с обезьянами", animals);
+        }
+
+        public static Aviary CreateGiraffeEnclosure()
+        {
+            var animals = new List<Animal>
+        {
+            new Animal("Жираф", "Мужской", "Гул"),
+            new Animal("Жирафа", "Женский", "Гул"),
+            new Animal("Жирафа", "Женский", "Гул"),
+            new Animal("Жирафа", "Женский", "Гул")
+        };
+            return new Aviary("Вольер с жирафами", animals);
+        }
+    }
+
+
+    class ZooFactory
+    {
+        public static Zoo CreateZoo()
+        {
+            var enclosures = new List<Aviary>
+        {
+            EnclosureFactory.CreateLionEnclosure(),
+            EnclosureFactory.CreateElephantEnclosure(),
+            EnclosureFactory.CreateMonkeyEnclosure(),
+            EnclosureFactory.CreateGiraffeEnclosure()
+        };
+            return new Zoo(enclosures);
+        }
+    }
+
 }
