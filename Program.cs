@@ -134,7 +134,6 @@ namespace Zoo
                 int cloneCount = random.Next(minNumberAnimals, maxNumberAnimals + 1); // Случайное число клонов от 1 до 10
                 for (int i = 0; i < cloneCount; i++)
                 {
-
                     animals.Add(animal.Clone());
                 }
             }
