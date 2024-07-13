@@ -92,6 +92,7 @@ namespace Zoo
         {
             Console.WriteLine($"Вальер: {_name}");
             Console.WriteLine($"Колличество животных: {_animals.Count}");
+
             for (int i = 0; i < _animals.Count; i++)
             {
                 Console.WriteLine(i + 1 + " " + _animals[i].Gender + "-" + _animals[i].Sound);
@@ -111,55 +112,76 @@ namespace Zoo
         public string Name { get; private set; }
         public string Gender { get; private set; }
         public string Sound { get; private set; }
+
+        public Animal Clone()
+        {
+            return new Animal(Name, Gender, Sound);
+        }
     }
 
     class EnclosureFactory
     {
+        private static int minNumberAnimals = 1;
+        private static int maxNumberAnimals = 10;
+        private static Random random = new Random();
+
+        public static Aviary CreateEnclosure(string enclosureName, List<Animal> baseAnimals)
+        {
+            var animals = new List<Animal>();
+
+            foreach (var animal in baseAnimals)
+            {
+                int cloneCount = random.Next(minNumberAnimals, maxNumberAnimals + 1); // Случайное число клонов от 1 до 10
+                for (int i = 0; i < cloneCount; i++)
+                {
+
+                    animals.Add(animal.Clone());
+                }
+            }
+
+            return new Aviary(enclosureName, animals);
+        }
+
         public static Aviary CreateLionEnclosure()
         {
-            var animals = new List<Animal>
+            var baseAnimals = new List<Animal>
         {
             new Animal("Лев", "Мужской", "Рев"),
-            new Animal("Лев", "Мужской", "Рев"),
-            new Animal("Львица", "Женский", "Рев"),
             new Animal("Львица", "Женский", "Рев")
         };
-            return new Aviary("Вольер со львами", animals);
+            return CreateEnclosure("Вольер со львами", baseAnimals);
         }
 
         public static Aviary CreateElephantEnclosure()
         {
-            var animals = new List<Animal>
+            var baseAnimals = new List<Animal>
         {
             new Animal("Слон", "Мужской", "Труба"),
+            new Animal("Слониха", "Женский", "Труба")
         };
-            return new Aviary("Вольер со слонами", animals);
+            return CreateEnclosure("Вольер со слонами", baseAnimals);
         }
 
         public static Aviary CreateMonkeyEnclosure()
         {
-            var animals = new List<Animal>
+            var baseAnimals = new List<Animal>
         {
-            new Animal("Обезьяна", "Мужской", "У-у"),
             new Animal("Обезьяна", "Мужской", "У-у"),
             new Animal("Обезьяна", "Женский", "А-а")
         };
-            return new Aviary("Вольер с обезьянами", animals);
+            return CreateEnclosure("Вольер с обезьянами", baseAnimals);
         }
 
         public static Aviary CreateGiraffeEnclosure()
         {
-            var animals = new List<Animal>
+            var baseAnimals = new List<Animal>
         {
             new Animal("Жираф", "Мужской", "Гул"),
-            new Animal("Жирафа", "Женский", "Гул"),
-            new Animal("Жирафа", "Женский", "Гул"),
             new Animal("Жирафа", "Женский", "Гул")
         };
-            return new Aviary("Вольер с жирафами", animals);
+            return CreateEnclosure("Вольер с жирафами", baseAnimals);
         }
     }
-
 
     class ZooFactory
     {
