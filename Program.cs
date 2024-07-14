@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Xml.Linq;
 
 namespace Zoo
 {
@@ -8,7 +7,11 @@ namespace Zoo
     {
         static void Main(string[] args)
         {
-            var zoo = ZooFactory.CreateZoo();
+            EnclosureFactory enclosureFactory = new EnclosureFactory();
+            ZooFactory zooFactory = new ZooFactory();
+
+            Zoo zoo = zooFactory.CreateZoo(enclosureFactory);
+
             zoo.Work();
         }
     }
@@ -16,7 +19,6 @@ namespace Zoo
     class Zoo
     {
         private List<Aviary> _aviaries;
-        private bool _isOpen = true;
 
         public Zoo(List<Aviary> aviaries)
         {
@@ -25,19 +27,21 @@ namespace Zoo
 
         public void Work()
         {
+            bool _isOpen = true;
+
             while (_isOpen)
             {
                 Console.Clear();
 
                 Console.WriteLine("Вы в зоопарке. Какой вальер хотите посетить?\n");
                 ShowAviary();
-                ChoiceAviary();
+                ChoiceAviary(ref _isOpen);
             }
         }
 
-        private void ChoiceAviary()
+        private void ChoiceAviary(ref bool isOpen)
         {
-            Console.Write("\nВаш выбор:");
+            Console.Write("\n\nВаш выбор:");
 
             if (int.TryParse(Console.ReadLine(), out int choiceUser))
             {
@@ -48,7 +52,7 @@ namespace Zoo
                 }
                 else if (choiceUser == _aviaries.Count + 1)
                 {
-                    _isOpen = false;
+                    isOpen = false;
                 }
                 else
                 {
@@ -70,10 +74,9 @@ namespace Zoo
         private void ShowAviary()
         {
             for (int i = 0; i < _aviaries.Count; i++)
-                Console.WriteLine($"{i + 1}.Вальер " + (i + 1));
+                Console.WriteLine($"{i + 1}.Вальер");
 
-            Console.Write($"{_aviaries.Count + 1}. Выход");
-
+            Console.Write($"\n{_aviaries.Count + 1}.Выход");
         }
     }
 
@@ -121,77 +124,58 @@ namespace Zoo
 
     class EnclosureFactory
     {
-        private static int minNumberAnimals = 1;
-        private static int maxNumberAnimals = 10;
-        private static Random random = new Random();
+        private int _minNumberAnimals = 1;
+        private int _maxNumberAnimals = 10;
+        private Random _random = new Random();
 
-        public static Aviary CreateEnclosure(string enclosureName, List<Animal> baseAnimals)
+        public Aviary CreateLionEnclosure(string gender)
+        {
+            var animal = new Animal("Лев", gender, "Рев");
+            return CreateEnclosure("Вольер со львами", animal);
+        }
+
+        public Aviary CreateElephantEnclosure(string gender)
+        {
+            var animal = new Animal("Слон", gender, "Труба");
+            return CreateEnclosure("Вольер со слонами", animal);
+        }
+
+        public Aviary CreateMonkeyEnclosure(string gender)
+        {
+            var animal = new Animal("Обезьяна", gender, "У-у");
+            return CreateEnclosure("Вольер с обезьянами", animal);
+        }
+
+        public Aviary CreateGiraffeEnclosure(string gender)
+        {
+            var animal = new Animal("Жираф", gender, "Гул");
+            return CreateEnclosure("Вольер с жирафами", animal);
+        }
+
+        private Aviary CreateEnclosure(string enclosureName, Animal baseAnimal)
         {
             var animals = new List<Animal>();
 
-            foreach (var animal in baseAnimals)
+            int cloneCount = _random.Next(_minNumberAnimals, _maxNumberAnimals + 1);
+            for (int i = 0; i < cloneCount; i++)
             {
-                int cloneCount = random.Next(minNumberAnimals, maxNumberAnimals + 1); // Случайное число клонов от 1 до 10
-                for (int i = 0; i < cloneCount; i++)
-                {
-                    animals.Add(animal.Clone());
-                }
+                animals.Add(baseAnimal.Clone());
             }
 
             return new Aviary(enclosureName, animals);
-        }
-
-        public static Aviary CreateLionEnclosure()
-        {
-            var baseAnimals = new List<Animal>
-        {
-            new Animal("Лев", "Мужской", "Рев"),
-            new Animal("Львица", "Женский", "Рев")
-        };
-            return CreateEnclosure("Вольер со львами", baseAnimals);
-        }
-
-        public static Aviary CreateElephantEnclosure()
-        {
-            var baseAnimals = new List<Animal>
-        {
-            new Animal("Слон", "Мужской", "Труба"),
-            new Animal("Слониха", "Женский", "Труба")
-        };
-            return CreateEnclosure("Вольер со слонами", baseAnimals);
-        }
-
-        public static Aviary CreateMonkeyEnclosure()
-        {
-            var baseAnimals = new List<Animal>
-        {
-            new Animal("Обезьяна", "Мужской", "У-у"),
-            new Animal("Обезьяна", "Женский", "А-а")
-        };
-            return CreateEnclosure("Вольер с обезьянами", baseAnimals);
-        }
-
-        public static Aviary CreateGiraffeEnclosure()
-        {
-            var baseAnimals = new List<Animal>
-        {
-            new Animal("Жираф", "Мужской", "Гул"),
-            new Animal("Жирафа", "Женский", "Гул")
-        };
-            return CreateEnclosure("Вольер с жирафами", baseAnimals);
         }
     }
 
     class ZooFactory
     {
-        public static Zoo CreateZoo()
+        public Zoo CreateZoo(EnclosureFactory enclosureFactory)
         {
             var enclosures = new List<Aviary>
         {
-            EnclosureFactory.CreateLionEnclosure(),
-            EnclosureFactory.CreateElephantEnclosure(),
-            EnclosureFactory.CreateMonkeyEnclosure(),
-            EnclosureFactory.CreateGiraffeEnclosure()
+            enclosureFactory.CreateLionEnclosure("Мужской"),
+            enclosureFactory.CreateElephantEnclosure("Мужской"),
+            enclosureFactory.CreateMonkeyEnclosure("Женский"),
+            enclosureFactory.CreateGiraffeEnclosure("Мужской"),
         };
             return new Zoo(enclosures);
         }
