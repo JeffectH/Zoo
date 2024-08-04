@@ -128,28 +128,11 @@ namespace Zoo
         private int _maxNumberAnimals = 10;
         private Random _random = new Random();
 
-        public Aviary CreateLionEnclosure(string gender)
+        public Aviary CreateEnclosure(string animalType, string gender)
         {
-            var animal = new Animal("Лев", gender, "Рев");
-            return CreateEnclosure("Вольер со львами", animal);
-        }
-
-        public Aviary CreateElephantEnclosure(string gender)
-        {
-            var animal = new Animal("Слон", gender, "Труба");
-            return CreateEnclosure("Вольер со слонами", animal);
-        }
-
-        public Aviary CreateMonkeyEnclosure(string gender)
-        {
-            var animal = new Animal("Обезьяна", gender, "У-у");
-            return CreateEnclosure("Вольер с обезьянами", animal);
-        }
-
-        public Aviary CreateGiraffeEnclosure(string gender)
-        {
-            var animal = new Animal("Жираф", gender, "Гул");
-            return CreateEnclosure("Вольер с жирафами", animal);
+            var animalInfo = _animalDictionary[animalType];
+            var baseAnimal = new Animal(animalInfo.name, gender, animalInfo.sound);
+            return CreateEnclosure(animalInfo.enclosureName, baseAnimal);
         }
 
         private Aviary CreateEnclosure(string enclosureName, Animal baseAnimal)
@@ -164,21 +147,32 @@ namespace Zoo
 
             return new Aviary(enclosureName, animals);
         }
+
+        private readonly Dictionary<string, (string name, string sound, string enclosureName)> _animalDictionary =
+            new Dictionary<string, (string name, string sound, string enclosureName)>
+            {
+                { "Lion", ("Лев", "Рев", "Вольер со львами") },
+                { "Elephant", ("Слон", "Труба", "Вольер со слонами") },
+                { "Monkey", ("Обезьяна", "Визг", "Вольер с обезьянами") },
+                { "Giraffe", ("Жираф", "Гул", "Вольер с жирафами") }
+            };
     }
 
     class ZooFactory
     {
         public Zoo CreateZoo(EnclosureFactory enclosureFactory)
         {
-            var enclosures = new List<Aviary>
-        {
-            enclosureFactory.CreateLionEnclosure("Мужской"),
-            enclosureFactory.CreateElephantEnclosure("Мужской"),
-            enclosureFactory.CreateMonkeyEnclosure("Женский"),
-            enclosureFactory.CreateGiraffeEnclosure("Мужской"),
-        };
+            var animalTypes = new List<string> { "Lion", "Elephant", "Monkey", "Giraffe" };
+            var genders = new List<string> { "Мужской", "Женский" };
+
+            var enclosures = new List<Aviary>();
+
+            foreach (var animalType in animalTypes)
+            {
+                var gender = genders[new Random().Next(genders.Count)];
+                enclosures.Add(enclosureFactory.CreateEnclosure(animalType, gender));
+            }
             return new Zoo(enclosures);
         }
     }
-
 }
