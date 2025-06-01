@@ -7,12 +7,13 @@ namespace Zoo
     {
         static void Main(string[] args)
         {
-            var animalTemplates = new Dictionary<string, (string name, string sound, string enclosureName)>
+            var animalTemplates = new Dictionary<string, AviaryConfig>
+
             {
-                { "Lion", ("Лев", "Рев", "Вольер со львами") },
-                { "Elephant", ("Слон", "Труба", "Вольер со слонами") },
-                { "Monkey", ("Обезьяна", "Визг", "Вольер с обезьянами") },
-                { "Giraffe", ("Жираф", "Гул", "Вольер с жирафами") }
+                { "Lion", new AviaryConfig("Лев", "Рев", "Вольер со львами") },
+                { "Elephant", new AviaryConfig("Слон", "Труба", "Вольер со слонами") },
+                { "Monkey", new AviaryConfig("Обезьяна", "Визг", "Вольер с обезьянами") },
+                { "Giraffe", new AviaryConfig("Жираф", "Гул", "Вольер с жирафами") }
             };
 
             EnclosureFactory enclosureFactory = new EnclosureFactory();
@@ -28,36 +29,30 @@ namespace Zoo
         private List<Aviary> _aviaries;
 
         public Zoo(List<Aviary> aviaries)
-        {
-            _aviaries = aviaries;
-        }
+            => _aviaries = aviaries;
 
         public void Work()
         {
             bool isOpen = true;
 
-            while (isOpen)
-            {
+            while (isOpen){
                 Console.Clear();
                 Console.WriteLine("Вы в зоопарке. Какой вольер хотите посетить?\n");
                 ShowAviaries();
-                isOpen = ChooseAviary();
+                isOpen = IsContinueAfterAviaryChoice();
             }
         }
 
-        private bool ChooseAviary()
+        private bool IsContinueAfterAviaryChoice()
         {
             Console.Write("\n\nВаш выбор: ");
-            if (int.TryParse(Console.ReadLine(), out int choice))
-            {
-                if (choice >= 1 && choice <= _aviaries.Count)
-                {
+            if (int.TryParse(Console.ReadLine(), out int choice)){
+                if (choice >= 1 && choice <= _aviaries.Count){
                     _aviaries[choice - 1].ShowInfo();
                     Console.ReadKey();
                     return true;
                 }
-                else if (choice == _aviaries.Count + 1)
-                {
+                if (choice == _aviaries.Count + 1){
                     return false;
                 }
             }
@@ -70,7 +65,7 @@ namespace Zoo
         private void ShowAviaries()
         {
             for (int i = 0; i < _aviaries.Count; i++)
-                Console.WriteLine($"{i + 1}. { _aviaries[i].Name }");
+                Console.WriteLine($"{i + 1}. {_aviaries[i].Name}");
 
             Console.WriteLine($"\n{_aviaries.Count + 1}. Выход");
         }
@@ -94,8 +89,7 @@ namespace Zoo
             Console.WriteLine($"Вольер: {_name}");
             Console.WriteLine($"Количество животных: {_animals.Count}");
 
-            for (int i = 0; i < _animals.Count; i++)
-            {
+            for (int i = 0; i < _animals.Count; i++){
                 Console.WriteLine($"{i + 1}. {_animals[i].Gender} - {_animals[i].Sound}");
             }
         }
@@ -115,24 +109,22 @@ namespace Zoo
         public string Sound { get; }
 
         public Animal Clone()
-        {
-            return new Animal(Name, Gender, Sound);
-        }
+            => new Animal(Name, Gender, Sound);
     }
 
     class EnclosureFactory
     {
-        private readonly Random _random = new Random();
         private const int MinNumberAnimals = 1;
         private const int MaxNumberAnimals = 10;
+
+        private readonly Random _random = new Random();
 
         public Aviary Create(Animal baseAnimal, string enclosureName)
         {
             var animals = new List<Animal>();
             int cloneCount = _random.Next(MinNumberAnimals, MaxNumberAnimals + 1);
 
-            for (int i = 0; i < cloneCount; i++)
-            {
+            for (int i = 0; i < cloneCount; i++){
                 animals.Add(baseAnimal.Clone());
             }
 
@@ -143,26 +135,40 @@ namespace Zoo
     class ZooFactory
     {
         private readonly EnclosureFactory _enclosureFactory;
-        private readonly List<string> _genders = new List<string> { "Мужской", "Женский" };
+        private readonly List<string> _genders = new List<string>
+        {
+            "Мужской",
+            "Женский"
+        };
 
         public ZooFactory(EnclosureFactory enclosureFactory)
-        {
-            _enclosureFactory = enclosureFactory;
-        }
+            => _enclosureFactory = enclosureFactory;
 
-        public Zoo Create(Dictionary<string, (string name, string sound, string enclosureName)> animalTemplates)
+        public Zoo Create(Dictionary<string, AviaryConfig> animalTemplates)
         {
             var aviaries = new List<Aviary>();
             var random = new Random();
 
-            foreach (var template in animalTemplates.Values)
-            {
-                var gender = _genders[random.Next(_genders.Count)];
-                var baseAnimal = new Animal(template.name, gender, template.sound);
-                aviaries.Add(_enclosureFactory.Create(baseAnimal, template.enclosureName));
+            foreach (var template in animalTemplates.Values){
+                string gender = _genders[random.Next(_genders.Count)];
+                var baseAnimal = new Animal(template.Name, gender, template.Sound);
+                aviaries.Add(_enclosureFactory.Create(baseAnimal, template.EnclosureName));
             }
 
             return new Zoo(aviaries);
+        }
+    }
+    class AviaryConfig
+    {
+        public string Name { get; }
+        public string Sound { get; }
+        public string EnclosureName { get; }
+
+        public AviaryConfig(string name, string sound, string enclosureName)
+        {
+            Name = name;
+            Sound = sound;
+            EnclosureName = enclosureName;
         }
     }
 }

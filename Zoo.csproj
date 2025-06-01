@@ -6,7 +6,4 @@
     <RootNamespace>Zoo</RootNamespace>
     <AssemblyName>Zoo</AssemblyName>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="Program.cs" />
-  </ItemGroup>
 </Project>
