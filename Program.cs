@@ -5,8 +5,7 @@ namespace Zoo
 {
     internal class Program
     {
-        static void Main(string[] args)
-        {
+        static void Main(string[] args) {
             var animalTemplates = new Dictionary<string, AviaryConfig>
 
             {
@@ -31,8 +30,7 @@ namespace Zoo
         public Zoo(List<Aviary> aviaries)
             => _aviaries = aviaries;
 
-        public void Work()
-        {
+        public void Work() {
             bool isOpen = true;
 
             while (isOpen){
@@ -43,8 +41,7 @@ namespace Zoo
             }
         }
 
-        private bool IsContinueAfterAviaryChoice()
-        {
+        private bool IsContinueAfterAviaryChoice() {
             Console.Write("\n\nВаш выбор: ");
             if (int.TryParse(Console.ReadLine(), out int choice)){
                 if (choice >= 1 && choice <= _aviaries.Count){
@@ -62,8 +59,7 @@ namespace Zoo
             return true;
         }
 
-        private void ShowAviaries()
-        {
+        private void ShowAviaries() {
             for (int i = 0; i < _aviaries.Count; i++)
                 Console.WriteLine($"{i + 1}. {_aviaries[i].Name}");
 
@@ -76,16 +72,14 @@ namespace Zoo
         private string _name;
         private List<Animal> _animals;
 
-        public Aviary(string name, List<Animal> animals)
-        {
+        public Aviary(string name, List<Animal> animals) {
             _name = name;
             _animals = animals;
         }
 
         public string Name => _name;
 
-        public void ShowInfo()
-        {
+        public void ShowInfo() {
             Console.WriteLine($"Вольер: {_name}");
             Console.WriteLine($"Количество животных: {_animals.Count}");
 
@@ -97,8 +91,7 @@ namespace Zoo
 
     class Animal
     {
-        public Animal(string name, string gender, string sound)
-        {
+        public Animal(string name, string gender, string sound) {
             Name = name;
             Gender = gender;
             Sound = sound;
@@ -117,12 +110,9 @@ namespace Zoo
         private const int MinNumberAnimals = 1;
         private const int MaxNumberAnimals = 10;
 
-        private readonly Random _random = new Random();
-
-        public Aviary Create(Animal baseAnimal, string enclosureName)
-        {
+        public Aviary Create(Animal baseAnimal, string enclosureName) {
             var animals = new List<Animal>();
-            int cloneCount = _random.Next(MinNumberAnimals, MaxNumberAnimals + 1);
+            int cloneCount = UserUtils.GenerateRandomNumber(MinNumberAnimals, MaxNumberAnimals + 1);
 
             for (int i = 0; i < cloneCount; i++){
                 animals.Add(baseAnimal.Clone());
@@ -135,22 +125,18 @@ namespace Zoo
     class ZooFactory
     {
         private readonly EnclosureFactory _enclosureFactory;
-        private readonly List<string> _genders = new List<string>
-        {
-            "Мужской",
-            "Женский"
-        };
+        private readonly List<string> _genders;
 
-        public ZooFactory(EnclosureFactory enclosureFactory)
-            => _enclosureFactory = enclosureFactory;
+        public ZooFactory(EnclosureFactory enclosureFactory) {
+            _enclosureFactory = enclosureFactory;
+            _genders = ["Мужской", "Женский"];
+        }
 
-        public Zoo Create(Dictionary<string, AviaryConfig> animalTemplates)
-        {
+        public Zoo Create(Dictionary<string, AviaryConfig> animalTemplates) {
             var aviaries = new List<Aviary>();
-            var random = new Random();
 
             foreach (var template in animalTemplates.Values){
-                string gender = _genders[random.Next(_genders.Count)];
+                string gender = _genders[UserUtils.GenerateRandomNumber(0, _genders.Count)];
                 var baseAnimal = new Animal(template.Name, gender, template.Sound);
                 aviaries.Add(_enclosureFactory.Create(baseAnimal, template.EnclosureName));
             }
@@ -158,17 +144,26 @@ namespace Zoo
             return new Zoo(aviaries);
         }
     }
+
     class AviaryConfig
     {
-        public string Name { get; }
-        public string Sound { get; }
-        public string EnclosureName { get; }
-
-        public AviaryConfig(string name, string sound, string enclosureName)
-        {
+        public AviaryConfig(string name, string sound, string enclosureName) {
             Name = name;
             Sound = sound;
             EnclosureName = enclosureName;
+        }
+
+        public string Name { get; }
+        public string Sound { get; }
+        public string EnclosureName { get; }
+    }
+
+    public static class UserUtils
+    {
+        private static readonly Random s_random = new Random();
+
+        public static int GenerateRandomNumber(int min, int max) {
+            return s_random.Next(min, max);
         }
     }
 }
